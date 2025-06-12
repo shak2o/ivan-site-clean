@@ -1,21 +1,14 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>  
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IVAN FEDOROVYKH</title>
   <link rel="stylesheet" href="styles.css">
-  <style>body { visibility: hidden; }</style>
+ 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
-  <header>
-    <head>
-      <link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400" rel="stylesheet">
-    </head>
-    <body>
-      
     </body>
     <h1>IVAN FEDOROVYKH</h1>
     <div class="social-links">
@@ -236,120 +229,102 @@
     </div>
   </section>
 
-  <!-- модальное окно -->
-<div class="modal" id="modal">
-  <span class="close" id="close">&times;</span>
-  <img class="modal-content" id="modal-img" src="" alt="">
-  <div id="caption"></div>
-  <button class="nav-btn left" id="prev">&#10094;</button>
-  <button class="nav-btn right" id="next">&#10095;</button>
-</div>
+   <!-- модальное окно -->
+   <div class="modal" id="modal">
+    <span class="close" id="close">&times;</span>
+    <div class="modal-scroll-container" id="modal-container">
+      <img class="modal-content" id="modal-img" src="" alt="" />
+    </div>
+    <div id="caption"></div>
+    <button class="nav-btn left" id="prev">&#10094;</button>
+    <button class="nav-btn right" id="next">&#10095;</button>
+  </div>
 
-<script src="mousemove.js"></script>
-<script>
-  function revealPhotosOnScroll() {
-      const photos = document.querySelectorAll('.photo');
-      const triggerBottom = window.innerHeight * 0.9;
-
-      photos.forEach(photo => {
-          const photoTop = photo.getBoundingClientRect().top;
-          if (photoTop < triggerBottom) {
-              photo.classList.add('show');
-          }
-      });
-  }
-
-  window.addEventListener('scroll', revealPhotosOnScroll);
-  window.addEventListener('load', () => {
-      document.body.classList.add('loaded');
-      revealPhotosOnScroll(); // показать сразу видимые
-  });
-</script>
-<script>
-  window.addEventListener('load', () => {
-      document.body.classList.add('loaded');
-  });
-</script>
-
-<div class="social-links">
-  <a href="https://t.me/+GXPnVbpKoeU4MGY6" target="_blank" aria-label="Telegram">
-      <img src="telegram.svg" alt="Telegram">
-  </a>
-  <a href="https://www.instagram.com/ivan_fedorovykh" target="_blank" aria-label="Instagram">
-      <img src="instagram.svg" alt="Instagram">
-  </a>
-  <a href="https://vk.com/ivan_fedorovykh" target="_blank" aria-label="VK">
-      <img src="vk.svg" alt="VK">
-  </a>
-<footer>
-  <p>&copy; 2025. Все права защищены shak2o</p>
- </footer>
-
- <script>
-  window.addEventListener("load", () => {
+  <!-- скрипт -->
+  <script>
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modal-img");
     const closeBtn = document.getElementById("close");
     const prevBtn = document.getElementById("prev");
     const nextBtn = document.getElementById("next");
+    const caption = document.getElementById("caption");
+    const modalContainer = document.getElementById("modal-container");
 
-    const images = Array.from(document.querySelectorAll(".photo img"));
+    let scale = 1;
+    let images = Array.from(document.querySelectorAll(".photo img"));
     let currentIndex = 0;
 
     function openModal(index) {
       modal.style.display = "block";
       modalImg.src = images[index].src;
+      caption.textContent = images[index].alt;
       currentIndex = index;
+      scale = 1;
+      modalImg.style.transform = `scale(${scale})`;
     }
 
-    function showImage(index) {
-      modalImg.src = images[index].src;
+    function closeModal() {
+      modal.style.display = "none";
     }
 
     images.forEach((img, index) => {
       img.addEventListener("click", () => openModal(index));
     });
 
-    closeBtn.addEventListener("click", () => {
-      modal.style.display = "none";
+    closeBtn.addEventListener("click", closeModal);
+    window.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
     });
 
     prevBtn.addEventListener("click", () => {
       currentIndex = (currentIndex - 1 + images.length) % images.length;
-      showImage(currentIndex);
+      modalImg.src = images[currentIndex].src;
+      caption.textContent = images[currentIndex].alt;
+      scale = 1;
+      modalImg.style.transform = `scale(${scale})`;
     });
 
     nextBtn.addEventListener("click", () => {
       currentIndex = (currentIndex + 1) % images.length;
-      showImage(currentIndex);
+      modalImg.src = images[currentIndex].src;
+      caption.textContent = images[currentIndex].alt;
+      scale = 1;
+      modalImg.style.transform = `scale(${scale})`;
+    });
+
+    modalContainer.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      scale = Math.min(Math.max(scale + delta, 0.5), 3);
+      modalImg.style.transform = `scale(${scale})`;
     });
 
     document.addEventListener("keydown", (e) => {
       if (modal.style.display === "block") {
-        if (e.key === "Escape") {
-          modal.style.display = "none";
-        } else if (e.key === "ArrowLeft") {
-          prevBtn.click();
-        } else if (e.key === "ArrowRight") {
-          nextBtn.click();
-        }
+        if (e.key === "Escape") closeModal();
+        if (e.key === "ArrowLeft") prevBtn.click();
+        if (e.key === "ArrowRight") nextBtn.click();
       }
     });
-  });
-</script>
 
+    // появление фото при скролле
+    function revealPhotosOnScroll() {
+      const photos = document.querySelectorAll('.photo');
+      const triggerBottom = window.innerHeight * 0.9;
 
+      photos.forEach(photo => {
+        const photoTop = photo.getBoundingClientRect().top;
+        if (photoTop < triggerBottom) {
+          photo.classList.add('show');
+        }
+      });
+    }
 
-</body>
-<div class="social-links">
-  <a href="https://t.me/+GXPnVbpKoeU4MGY6" target="_blank" aria-label="Telegram">
-      <img src="telegram.svg" alt="Telegram">
-  </a>
-  <a href="https://www.instagram.com/ivan_fedorovykh" target="_blank" aria-label="Instagram">
-      <img src="instagram.svg" alt="Instagram">
-  </a>
-  <a href="https://vk.com/ivan_fedorovykh" target="_blank" aria-label="VK">
-      <img src="vk.svg" alt="VK">
-  </a>
-</div>
+    window.addEventListener('scroll', revealPhotosOnScroll);
+    window.addEventListener('load', () => {
+      revealPhotosOnScroll();
+    });
+  </script>
+
 </html>
+</body>
